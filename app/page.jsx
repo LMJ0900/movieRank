@@ -19,7 +19,7 @@ export default function Home() {
     const apiKey = "70e134f822db8560523e77a450abcfa6";
     const apiKey2 = "C216H4982X63Y7C81R74";
 
-    const boxOfficeUrl = `http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=${apiKey}&targetDt=${dateType}`;
+    const boxOfficeUrl = `https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=${apiKey}&targetDt=${dateType}`;
 
     // ✅ 1. 박스오피스 데이터 가져오기
     useEffect(() => {
