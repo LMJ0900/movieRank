@@ -11,6 +11,13 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        maincolor: "var(--maincolor)",
+        subcolor: "var(--subcolor)",
+        subBgcolor: "var(--subBgcolor)",
+        mainBgcolor : "var(--mainBgcolor)",
+        mainTextcolor : "var(--mainTextcolor)",
+        subTextcolor : "var(--subTextcolor)",
+        hovercolor : "var(--hovercolor)",
       },
     },
   },
