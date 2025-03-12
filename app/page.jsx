@@ -1,5 +1,5 @@
 import { fetchBoxOfficeData, fetchMoviePosters } from "@/actions/movieAction";
-import BoxOfficeList from "@/components/BoxOfficeList";
+import BoxOfficeList from "@/components/boxOfficeList";
 import Header from "@/components/header";
 
 export default async function Home() {
