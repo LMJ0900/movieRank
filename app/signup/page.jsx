@@ -7,15 +7,40 @@ import { supabase } from "@/lib/data";
 export default function SignupPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [nickname, setNickname] = useState(""); // 닉네임 입력 필드 추가
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const router = useRouter();
+
+     // ✅ 닉네임 중복 체크 함수
+     const checkNicknameExists = async (nickname) => {
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("nickname", nickname);
+
+        if (error) {
+            console.error("닉네임 중복 체크 오류:", error);
+            return true;
+        }
+
+        return data.length > 0; // 같은 닉네임이 존재하면 true 반환
+    };
 
     const handleSignup = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
+         // ✅ 닉네임 중복 확인
+         const isNicknameTaken = await checkNicknameExists(nickname);
+         if (isNicknameTaken) {
+             setError("이미 사용 중인 닉네임입니다.");
+             setLoading(false);
+             return;
+         }
+         
+        // Supabase Auth 회원가입
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -23,10 +48,28 @@ export default function SignupPage() {
 
         if (error) {
             setError(error.message);
-        } else {
+            setLoading(false);
+            return;
+        }
+
+        const user = data.user;
+
+        if (user) {
+            // 회원가입한 유저의 UID를 사용해 profiles 테이블에 닉네임 저장
+            const { error: profileError } = await supabase.from("profiles").insert([
+                { id: user.id, nickname },
+            ]);
+
+            if (profileError) {
+                setError(profileError.message);
+                setLoading(false);
+                return;
+            }
+
             alert("회원가입 성공! 로그인 페이지로 이동합니다.");
             router.push("/login"); // 회원가입 성공 시 로그인 페이지로 이동
         }
+
         setLoading(false);
     };
 
@@ -51,6 +94,14 @@ export default function SignupPage() {
                         placeholder="비밀번호"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="border p-2 rounded mb-2"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="닉네임"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
                         className="border p-2 rounded mb-2"
                         required
                     />

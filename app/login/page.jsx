@@ -15,7 +15,7 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,

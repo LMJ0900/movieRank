@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Search, User } from "lucide-react"; // 아이콘 라이브러리 사용
+import { Search, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useLoginCheck } from "@/hooks/Auth"; // ✅ 커스텀 훅 사용
 
-export default function header() {
-    const [search, setSearch] = useState("");
+export default function Header() {
+    const { user, loading } = useLoginCheck(); // ✅ 로그인 상태 가져오기
+    const router = useRouter();
 
     return (
         <header className="bg-subBgcolor shadow-md fixed w-full top-0 z-50">
@@ -31,19 +33,26 @@ export default function header() {
                             type="text"
                             placeholder="검색"
                             className="border rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
                         />
                         <Search className="absolute left-3 top-2 text-gray-500" size={18} />
                     </div>
 
-                    {/* 🔹 로그인 / 회원가입 */}
-                    <Link href="/login" className="hidden md:block bg-maincolor text-white px-4 py-2 rounded-full">
-                        로그인
-                    </Link>
-
-                    {/* 🔹 유저 아이콘 (로그인 상태일 때) */}
-                    <User className="md:hidden text-gray-500 cursor-pointer" size={28} />
+                    {/* 🔹 로그인 / 마이페이지 */}
+                    {loading ? (
+                        <span className="text-gray-500">로딩 중...</span>
+                    ) : user ? (
+                        // ✅ 로그인 상태 → 유저 아이콘 (마이페이지로 이동)
+                        <User
+                            className="text-gray-500 cursor-pointer"
+                            size={28}
+                            onClick={() => router.push("/mypage")}
+                        />
+                    ) : (
+                        // ✅ 로그아웃 상태 → 로그인 버튼
+                        <Link href="/login" className="hidden md:block bg-maincolor text-white px-4 py-2 rounded-full">
+                            로그인
+                        </Link>
+                    )}
                 </div>
             </div>
         </header>
