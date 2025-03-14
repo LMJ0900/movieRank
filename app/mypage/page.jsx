@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/data";
 import { useLoginCheck } from "@/hooks/Auth";
-
+import { checkNickname } from "@/components/checkNickname"
 export default function MyPage() {
     const { user, loading } = useLoginCheck();
     const [nickname, setNickname] = useState("");
@@ -14,13 +14,16 @@ export default function MyPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (user) {
-            fetchNickname();
-        }
+        if (!user) return; 
+    
+        (async () => { 
+            await fetchNickname();
+        })();
     }, [user]);
 
     // ✅ 현재 닉네임 가져오기
     const fetchNickname = async () => {
+        if (!user?.id) return;
         const { data, error } = await supabase
             .from("profiles")
             .select("nickname")
@@ -35,20 +38,6 @@ export default function MyPage() {
         }
     };
 
-    // ✅ 닉네임 중복 체크 함수
-    const checkNicknameExists = async (nickname) => {
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("nickname", nickname);
-
-        if (error) {
-            console.error("닉네임 중복 체크 오류:", error);
-            return true;
-        }
-
-        return data.length > 0;
-    };
 
     // ✅ 닉네임 변경
     const handleUpdateNickname = async () => {
@@ -65,7 +54,7 @@ export default function MyPage() {
         setUpdateLoading(true);
 
         // ✅ 닉네임 중복 체크
-        const isNicknameTaken = await checkNicknameExists(newNickname);
+        const isNicknameTaken = await checkNickname(newNickname);
         if (isNicknameTaken) {
             setError("이미 사용 중인 닉네임입니다.");
             setUpdateLoading(false);

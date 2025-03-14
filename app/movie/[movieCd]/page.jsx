@@ -6,7 +6,7 @@ import { supabase } from '@/lib/data';
 import { useBoxOfficeData } from '@/hooks/movieHook';
 import { fetchMoviePosters } from '@/actions/movieAction';
 import { useLoginCheck } from '@/hooks/Auth';  // ✅ 로그인 체크 훅 사용
-
+import { dateType } from '../../../components/dateType';
 export default function MovieDetail() {
     const { movieCd } = useParams();
     const router = useRouter();
@@ -18,14 +18,6 @@ export default function MovieDetail() {
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true); // ✅ 해결: loading 상태 추가
 
-    // ✅ 날짜 계산 (공통 로직 따로 분리 가능)
-    let today = new Date();
-    let yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    let year = yesterday.getFullYear().toString();
-    let month = (yesterday.getMonth() + 1).toString().padStart(2, '0');
-    let date = yesterday.getDate().toString().padStart(2, '0');
-    const dateType = `${year}${month}${date}`
 
     // ✅ useBoxOfficeData()를 활용해 영화 목록 가져오기
     const { movieList, loading: boxOfficeLoading } = useBoxOfficeData(dateType, apiKey);
@@ -101,7 +93,7 @@ export default function MovieDetail() {
                 .single();
             const newCommentData = {
                 ...data[0],
-                profiles: { nickname: userProfile.data?.nickname || "익명" }
+                profiles: { nickname: userProfile.data?.nickname}
                 };
                 setComments([newCommentData, ...comments]);
                 setNewComment("");

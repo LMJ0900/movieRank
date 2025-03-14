@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/data";
-
+import { checkNickname } from "@/components/checkNickname"
 export default function SignupPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -12,28 +12,13 @@ export default function SignupPage() {
     const [error, setError] = useState(null);
     const router = useRouter();
 
-     // ✅ 닉네임 중복 체크 함수
-     const checkNicknameExists = async (nickname) => {
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("nickname", nickname);
-
-        if (error) {
-            console.error("닉네임 중복 체크 오류:", error);
-            return true;
-        }
-
-        return data.length > 0; // 같은 닉네임이 존재하면 true 반환
-    };
-
     const handleSignup = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
          // ✅ 닉네임 중복 확인
-         const isNicknameTaken = await checkNicknameExists(nickname);
+         const isNicknameTaken = await checkNickname(nickname);
          if (isNicknameTaken) {
              setError("이미 사용 중인 닉네임입니다.");
              setLoading(false);

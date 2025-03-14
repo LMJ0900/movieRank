@@ -1,17 +1,8 @@
 import { fetchBoxOfficeData, fetchMoviePosters } from "@/actions/movieAction";
 import BoxOfficeList from "@/components/boxOfficeList";
 import Header from "@/components/header";
-
+import { dateType } from "@/components/dateType"
 export default async function Home() {
-    // ✅ 날짜 계산 (서버에서 실행됨)
-    let today = new Date();
-    let yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    let year = yesterday.getFullYear().toString();
-    let month = (yesterday.getMonth() + 1).toString().padStart(2, '0');
-    let date = yesterday.getDate().toString().padStart(2, '0');
-    const dateType = `${year}${month}${date}`;
 
     // ✅ API 키
     const apiKey = "70e134f822db8560523e77a450abcfa6";
