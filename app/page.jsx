@@ -7,9 +7,9 @@ import { dateType } from "@/components/dateType"
 export default async function Home() {
 
     // ✅ API 키
-    const apiKey = "70e134f822db8560523e77a450abcfa6";
-    const apiKey2 = "C216H4982X63Y7C81R74";
-    const bookApikey = "ttbalswodnjswo1609001";
+    const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
+    const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
+    const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
 
     
     // ✅ 서버에서 API 데이터 가져오기 (박스오피스)
