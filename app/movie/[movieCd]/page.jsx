@@ -10,8 +10,8 @@ import { dateType } from '../../../components/dateType';
 export default function MovieDetail() {
     const { movieCd } = useParams();
     const router = useRouter();
-    const apiKey = "70e134f822db8560523e77a450abcfa6"; 
-    const apiKey2 = "C216H4982X63Y7C81R74";
+    const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
+    const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
 
     const [movieDetail, setMovieDetail] = useState(null);
     const [comments, setComments] = useState([]);
