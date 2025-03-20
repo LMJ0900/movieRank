@@ -7,10 +7,10 @@ import { usebookData } from '@/hooks/bookHook';
 import { fetchBestsellerData } from "@/actions/bookAction"
 import { useLoginCheck } from '@/hooks/Auth';  // ✅ 로그인 체크 훅 사용
 
-export default function bookDetail(){
+export default function BookDetail(){
     const { itemId } = useParams();
     const router = useRouter();
-    const bookApikey = "ttbalswodnjswo1609001";
+    const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
 
     const [bookDetail, setBookDetail] = useState(null);
     const [comments, setComments] = useState([]);
@@ -94,7 +94,7 @@ export default function bookDetail(){
     };
 
     // ✅ 로딩 중 화면
-    if (loading || authLoading) return <h1>Loading...</h1>;
+    if (loading || authLoading || bookLoading) return <h1>Loading...</h1>;
     if (!bookDetail) return <h1>도서 정보를 불러올 수 없습니다.</h1>;
 
 
