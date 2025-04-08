@@ -4,6 +4,7 @@ import PaginatedList from "@/components/paginatedList";
 import Link from "next/link";
 
 export default function BoxOfficeList({ movieList, moviePosters }) {
+    
     return (
         <PaginatedList
             title="박스오피스 순위"
