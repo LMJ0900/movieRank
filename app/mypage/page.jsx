@@ -1,5 +1,5 @@
 "use client";
-
+import { LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/data";
@@ -95,9 +95,9 @@ export default function MyPage() {
                 <h1 className="text-3xl font-semibold text-gray-800">마이페이지</h1>
                 <button
                     onClick={() => router.back()}
-                    className="text-sm text-gray-500 hover:text-gray-700 underline"
+                     className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition"
                 >
-                    ← 뒤로가기
+                    <LogOut size={30} />
                 </button>
             </div>
 
