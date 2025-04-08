@@ -90,33 +90,49 @@ export default function MyPage() {
     if (!user) return <h1>로그인이 필요합니다.</h1>;
 
     return (
-        <div className="p-6 max-w-lg mx-auto bg-white shadow-md rounded-md">
-            <h1 className="text-2xl font-bold mb-4">마이페이지</h1>
+        <div className="p-6 max-w-md mx-auto bg-white shadow-lg rounded-2xl mt-10">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-semibold text-gray-800">마이페이지</h1>
+                <button
+                    onClick={() => router.back()}
+                    className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                    ← 뒤로가기
+                </button>
+            </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && (
+                <div className="bg-red-100 text-red-700 p-2 mb-4 rounded-md text-sm">
+                    {error}
+                </div>
+            )}
 
-            {/* ✅ 닉네임 변경 */}
-            <div className="mb-4">
-                <label className="block text-gray-700">닉네임</label>
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-600 mb-1">현재 닉네임</label>
+                <div className="text-gray-800 font-semibold mb-2">{nickname}</div>
+
+                <label className="block text-sm font-medium text-gray-600 mb-1">새 닉네임</label>
                 <input
                     type="text"
                     value={newNickname}
                     onChange={(e) => setNewNickname(e.target.value)}
-                    className="mt-1 p-2 border w-full rounded"
+                    className="p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="새 닉네임을 입력하세요"
                 />
                 <button
                     onClick={handleUpdateNickname}
                     disabled={updateLoading}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full"
+                    className="mt-3 w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition"
                 >
                     {updateLoading ? "변경 중..." : "닉네임 변경"}
                 </button>
             </div>
 
-            {/* ✅ 로그아웃 버튼 */}
+            <hr className="my-6 border-gray-200" />
+
             <button
                 onClick={handleLogout}
-                className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 w-full"
+                className="w-full py-2 px-4 bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition"
             >
                 로그아웃
             </button>
