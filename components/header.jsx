@@ -19,10 +19,10 @@ export default function Header() {
 
                 {/* 🔹 네비게이션 */}
                 <nav className="hidden md:flex space-x-6">
-                    <Link href="/movies" className="text-subcolor hover:text-hovercolor">영화</Link>
-                    <Link href="/tv" className="text-subcolor hover:text-hovercolor">TV 프로그램</Link>
-                    <Link href="/books" className="text-subcolor hover:text-hovercolor">책</Link>
-                    <Link href="/trending" className="text-subcolor hover:text-hovercolor">트렌드</Link>
+                    <Link href="/movies" className="text-subcolor hover:text-hovercolor">영화(준비중)</Link>
+                    <Link href="/tv" className="text-subcolor hover:text-hovercolor">TV 프로그램(준비중)</Link>
+                    <Link href="/books" className="text-subcolor hover:text-hovercolor">책(준비중)</Link>
+                    <Link href="/trending" className="text-subcolor hover:text-hovercolor">트렌드(준비중)</Link>
                 </nav>
 
                 {/* 🔹 검색창 & 유저 메뉴 */}
