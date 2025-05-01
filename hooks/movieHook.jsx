@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchBoxOfficeData } from "@/actions/movieAction";
+import { fetchMoviePosters } from "@/actions/movieAction";
 // ✅ 커스텀 훅: 박스오피스 데이터 가져오기
 export const useBoxOfficeData = (dateType, apiKey) => {
     const [movieList, setMovieList] = useState([]);
