@@ -1,7 +1,6 @@
 
 export const fetchBoxOfficeData = async (dateType, apiKey) => {
     const boxOfficeUrl = `https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=${apiKey}&targetDt=${dateType}`;
-
     try {
         const res = await fetch(boxOfficeUrl);
         if (!res.ok) {

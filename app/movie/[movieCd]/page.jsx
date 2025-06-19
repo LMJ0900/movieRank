@@ -6,8 +6,9 @@ import { supabase } from '@/lib/data';
 import { useBoxOfficeData } from '@/hooks/movieHook';
 import { fetchMoviePosters } from '@/actions/movieAction';
 import { useLoginCheck } from '@/hooks/Auth';  // ✅ 로그인 체크 훅 사용
-import { dateType } from '../../../components/dateType';
+import { getDateType } from '@/components/dateType';
 export default function MovieDetail() {
+    const dateType = getDateType(); 
     const { movieCd } = useParams();
     const router = useRouter();
     const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
