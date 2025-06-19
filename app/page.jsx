@@ -3,7 +3,7 @@ import { fetchBestsellerData } from "@/actions/bookAction";
 import BoxOfficeList from "@/components/boxOfficeList";
 import BestsellerList from "@/components/bestsellerList"
 import Header from "@/components/header";
-import { dateType } from "@/components/dateType"
+import { getDateType } from "@/components/dateType";
 export default async function Home() {
 
     // ✅ API 키
@@ -11,7 +11,7 @@ export default async function Home() {
     const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
     const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
 
-    
+    const dateType = getDateType(); 
     // ✅ 서버에서 API 데이터 가져오기 (박스오피스)
     const movieList = await fetchBoxOfficeData(dateType, apiKey);
 
