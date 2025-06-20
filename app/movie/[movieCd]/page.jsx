@@ -6,7 +6,6 @@ import { supabase } from '@/lib/data';
 import { useLoginCheck } from '@/hooks/Auth';
 import { useRecoilValue } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
-import { fetchMoviePosters } from '@/actions/movieAction';
 
 export default function MovieDetail() {
   const { movieCd } = useParams();

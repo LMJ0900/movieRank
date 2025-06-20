@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/data';
-import { usebookData } from '@/hooks/bookHook';
-import { fetchBestsellerData } from "@/actions/bookAction"
 import { useLoginCheck } from '@/hooks/Auth';  // ✅ 로그인 체크 훅 사용
 import { useRecoilValue } from "recoil";
 import { bestSellerState } from "@/recoil/bookState";
