@@ -1,5 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 
 export const metadata = {
   title: "movie",
@@ -10,7 +11,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Google Tag Manager (JS) */}
         <Script id="gtm-script" strategy="afterInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -23,7 +23,6 @@ export default function RootLayout({ children }) {
         </Script>
       </head>
       <body>
-        {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-PF7BF4VX"
@@ -32,8 +31,7 @@ export default function RootLayout({ children }) {
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-
-        {children}
+        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>
   );

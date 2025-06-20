@@ -4,6 +4,8 @@ import BoxOfficeList from "@/components/boxOfficeList";
 import BestsellerList from "@/components/bestsellerList"
 import Header from "@/components/header";
 import { getDateType } from "@/components/dateType";
+import InitBestSeller from "@/components/InitBestSeller";
+import InitBoxOffice from '@/components/InitBoxOffice'
 export default async function Home() {
 
     // ✅ API 키
@@ -19,11 +21,11 @@ export default async function Home() {
     const moviePosters = await fetchMoviePosters(movieList, apiKey2);
 
     const bestSellerList = await fetchBestsellerData(bookApikey)
-    
-    console.log(bestSellerList)
     return (
         <div className="flex flex-col items-center w-full bg-mainBgcolor">
             <Header />
+            <InitBestSeller data={bestSellerList} />
+            <InitBoxOffice movieList={movieList} moviePosters={moviePosters} />
             <BoxOfficeList movieList={movieList} moviePosters={moviePosters} />
             <BestsellerList bestsellerList={bestSellerList}/>
         </div>

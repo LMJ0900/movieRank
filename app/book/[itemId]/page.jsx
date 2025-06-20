@@ -6,18 +6,17 @@ import { supabase } from '@/lib/data';
 import { usebookData } from '@/hooks/bookHook';
 import { fetchBestsellerData } from "@/actions/bookAction"
 import { useLoginCheck } from '@/hooks/Auth';  // ✅ 로그인 체크 훅 사용
-
+import { useRecoilValue } from "recoil";
+import { bestSellerState } from "@/recoil/bookState";
 export default function BookDetail(){
     const { itemId } = useParams();
     const router = useRouter();
-    const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
-
+    const bookList = useRecoilValue(bestSellerState);
     const [bookDetail, setBookDetail] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const { bookList, loading : bookLoading} = usebookData(bookApikey)
     const { user, loading: authLoading } = useLoginCheck();
 
     useEffect(() => {
@@ -28,15 +27,12 @@ export default function BookDetail(){
 
     const fetchBookDetails = async () => {
         try {
+            console.log(`북 데이터 확인 ${bookList}`)
             setLoading(true);
-
-            // ✅ API에서 도서 상세 정보 가져오기
-            const bookList = await fetchBestsellerData(bookApikey);
-
             if (!bookList || bookList.length === 0) throw new Error("도서 목록이 비어 있음");
             
              // ✅ 현재 itemId에 해당하는 책 찾기
-             const bookData = bookList.find(book => book.itemId === itemId);
+             const bookData = bookList.find(book => book.itemId.toString() === itemId.toString());
 
             if (!bookData) throw new Error("도서 정보 없음");
 
@@ -94,7 +90,7 @@ export default function BookDetail(){
     };
 
     // ✅ 로딩 중 화면
-    if (loading || authLoading || bookLoading) return <h1>Loading...</h1>;
+    if (loading || authLoading) return <h1>Loading...</h1>;
     if (!bookDetail) return <h1>도서 정보를 불러올 수 없습니다.</h1>;
 
 
