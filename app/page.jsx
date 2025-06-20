@@ -24,7 +24,7 @@ export default async function Home() {
     return (
         <div className="flex flex-col items-center w-full bg-mainBgcolor">
             <Header />
-            <InitBestSeller data={bestSellerList} />
+            <InitBestSeller bookList={bestSellerList} />
             <InitBoxOffice movieList={movieList} moviePosters={moviePosters} />
             <BoxOfficeList movieList={movieList} moviePosters={moviePosters} />
             <BestsellerList bestsellerList={bestSellerList}/>
