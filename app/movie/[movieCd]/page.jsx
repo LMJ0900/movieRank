@@ -20,7 +20,7 @@ export default function MovieDetail() {
 
   const movieList = useRecoilValue(boxOfficeState);
   const posterData = useRecoilValue(moviePosterState);
-    
+  console.log("영화 정보 확인", JSON.stringify(movieList, null, 2));
   useEffect(() => {
     if (movieCd && movieList.length > 0) {
       fetchMovieDetails();

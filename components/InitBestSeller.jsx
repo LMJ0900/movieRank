@@ -4,16 +4,25 @@ import { useEffect } from "react";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { bestSellerState } from "@/recoil/bookState";
 
+function isBookListEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+
+  return a.every((book, i) => book.isbn === b[i]?.isbn);
+}
+
 export default function InitBestSeller({ bookList }) {
   const setBestSellers = useSetRecoilState(bestSellerState);
-
   const currentBestSellers = useRecoilValue(bestSellerState);
-  console.log("bookList ✅", bookList);
-  console.log("currentBestSellers 🧪", currentBestSellers);
-   useEffect(() => {
-    console.log("✅ Initbestseller 실행됨");
 
-    if (currentBestSellers.length === 0 && bookList?.length > 0) {
+  useEffect(() => {
+    console.log("✅ InitBestSeller 실행됨");
+    console.log("📚 서버 bookList:", bookList);
+    console.log("📚 Recoil currentBestSellers:", currentBestSellers);
+
+    // ✅ 상태가 다를 경우에만 Recoil 업데이트
+    if (!isBookListEqual(currentBestSellers, bookList)) {
+      console.log("📚 베스트셀러 상태 업데이트");
       setBestSellers([...bookList]);
     }
   }, [bookList, currentBestSellers]);

@@ -23,6 +23,7 @@ export default async function Home() {
     const moviePosters = await fetchMoviePosters(movieList, apiKey2);
 
     const bestSellerList = await fetchBestsellerData(bookApikey)
+   
     return (
         <div className="flex flex-col items-center w-full bg-mainBgcolor min-h-[100vh]">
             <Header />
