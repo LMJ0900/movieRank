@@ -6,6 +6,8 @@ import Header from "@/components/header";
 import { getDateType } from "@/components/dateType";
 import InitBestSeller from "@/components/InitBestSeller";
 import InitBoxOffice from '@/components/InitBoxOffice'
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
 
     // ✅ API 키
@@ -22,7 +24,7 @@ export default async function Home() {
 
     const bestSellerList = await fetchBestsellerData(bookApikey)
     return (
-        <div className="flex flex-col items-center w-full bg-mainBgcolor">
+        <div className="flex flex-col items-center w-full bg-mainBgcolor min-h-[100vh]">
             <Header />
             <InitBestSeller bookList={bestSellerList} />
             <InitBoxOffice movieList={movieList} moviePosters={moviePosters} />

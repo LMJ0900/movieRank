@@ -19,7 +19,7 @@ export default function BoxOfficeList({ movieList, moviePosters }) {
                             {movie.rank}
                         </div>
                     </div>
-                    <h2 className="text-lg text-mainTextcolor font-semibold mt-3">{movie.movieNm}</h2>
+                    <h2 className="text-lg text-mainTextcolor font-semibold mt-3 w-[14rem] text-center line-clamp-2">{movie.movieNm}</h2>
                     <p className="text-subTextcolor">{movie.openDt} · {movie.nationAlt}</p>
                     <p className="text-sm text-subTextcolor">🎟️ 누적 관객 {Number(movie.audiAcc).toLocaleString()}명</p>
                 </Link>

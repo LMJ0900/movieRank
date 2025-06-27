@@ -12,7 +12,6 @@ export default function PaginatedList({ items, renderItem, itemsPerPage = 5, tit
         <div className="w-[90%] mt-20">
             <h1 className="text-3xl font-bold text-left my-6 text-mainTextcolor">{title}</h1>
             <div className="relative w-full flex items-center">
-                {/* 이전 버튼 */}
                 <button 
                     onClick={prevPage} 
                     disabled={currentPage === 0} 
