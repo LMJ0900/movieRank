@@ -94,7 +94,7 @@ export default function JoinBar({ onJoinSuccess }) {
                     />
           <button
             type="submit"
-            className="mt-4 border-white border-2 rounded-[20px] w-[7rem] h-[3rem] text-white font-semibold disabled:opacity-50"
+            className="mt-4 border-white border-2 rounded-[20px] w-[7rem] h-[3rem] text-white hover:text-mainTextcolor hover:border-mainTextcolor font-semibold disabled:opacity-50"
             disabled={loading}
           >
             {loading ? "가입 중..." : "회원가입"}
