@@ -49,7 +49,7 @@ export default function Header() {
                         />
                     ) : (
                         // ✅ 로그아웃 상태 → 로그인 버튼
-                        <Link href="/login" className="hidden md:block bg-maincolor text-white px-4 py-2 rounded-full">
+                        <Link href="/login" className=" md:block bg-maincolor text-white px-4 py-2 rounded-full">
                             로그인
                         </Link>
                     )}
