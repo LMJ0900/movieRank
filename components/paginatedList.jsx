@@ -1,43 +1,62 @@
 'use client';
 
 import { usePagination } from "@/hooks/pagination";
-
+import { useEffect, useState } from "react";
 
 export default function PaginatedList({ items, renderItem, itemsPerPage = 5, title }) {
-    const { currentPage, totalPages, currentItems, nextPage, prevPage } = usePagination(items.length, itemsPerPage);
+  const [isMobile, setIsMobile] = useState(false);
+  const { currentPage, totalPages, currentItems, nextPage, prevPage } = usePagination(items.length, itemsPerPage);
 
-    const currentItemsList = currentItems(items);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640); // Tailwind sm 기준
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-    return (
-        <div className="w-[90%] mt-20">
-            <h1 className="text-3xl font-bold text-left my-6 text-mainTextcolor">{title}</h1>
-            <div className="relative w-full flex items-center">
-                <button 
-                    onClick={prevPage} 
-                    disabled={currentPage === 0} 
-                    className={`absolute left-0 p-2 text-white bg-black bg-opacity-50 rounded-full ${
-                        currentPage === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-opacity-70"
-                    }`}
-                >
-                    ◀
-                </button>
+  const currentItemsList = currentItems(items);
 
-                {/* 리스트 렌더링 */}
-                <div className="flex space-x-6 overflow-hidden w-full justify-center">
-                    {currentItemsList.map(renderItem)}
-                </div>
+  return (
+    <div className="w-[90%] mt-20 mx-auto">
+      <h1 className="text-3xl font-bold text-left my-6 text-mainTextcolor">{title}</h1>
 
-                {/* 다음 버튼 */}
-                <button 
-                    onClick={nextPage} 
-                    disabled={currentPage >= totalPages - 1} 
-                    className={`absolute right-0 p-2 text-white bg-black bg-opacity-50 rounded-full ${
-                        currentPage >= totalPages - 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-opacity-70"
-                    }`}
-                >
-                    ▶
-                </button>
+      <div className="relative w-full flex items-center">
+        {/* ✅ PC: 페이지네이션 모드 */}
+        {!isMobile && (
+          <>
+            <button
+              onClick={prevPage}
+              disabled={currentPage === 0}
+              className={`absolute left-0 z-10 p-2 text-white bg-black bg-opacity-50 rounded-full ${
+                currentPage === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-opacity-70"
+              }`}
+            >
+              ◀
+            </button>
+
+            <div className="flex space-x-6 overflow-hidden w-full justify-center px-10">
+              {currentItemsList.map(renderItem)}
             </div>
-        </div>
-    );
+
+            <button
+              onClick={nextPage}
+              disabled={currentPage >= totalPages - 1}
+              className={`absolute right-0 z-10 p-2 text-white bg-black bg-opacity-50 rounded-full ${
+                currentPage >= totalPages - 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-opacity-70"
+              }`}
+            >
+              ▶
+            </button>
+          </>
+        )}
+
+        {/* ✅ 모바일: 전체 리스트 스크롤 모드 */}
+        {isMobile && (
+          <div className="flex space-x-4 overflow-x-auto scrollbar-hide w-full px-2">
+            {items.map(renderItem)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
