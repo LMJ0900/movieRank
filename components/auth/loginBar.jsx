@@ -8,7 +8,7 @@ import { supabase } from "@/lib/data"; // Supabase 클라이언트 import
 
 
 
-export default function LoginBar() {
+export default function LoginBar({onSwitch }) {
   // Supabase 로그인 로직 추가
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,6 +69,12 @@ export default function LoginBar() {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+       <button
+        onClick={onSwitch}
+        className="md:hidden mt-8 text-sm text-gray-300 underline"
+      >
+        회원가입 하러가기
+      </button>
     </>
   );
 }

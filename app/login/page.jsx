@@ -11,19 +11,19 @@ export default function Main() {
 
   const handleSignUpClick = () => {
     setIsLogin(false);
-    setAnimationClass('animate-TransRight');
+    setAnimationClass('md:animate-TransRight');
   }
 
   const handleLoginClick = () => {
     setIsLogin(true);
-    setAnimationClass('animate-Transleft');
+    setAnimationClass('md:animate-Transleft');
   }
 
   return (
     <>
       <div className="flex items-center justify-center bg-mainBgcolor  h-[100vh]">
         <div className="relative mt-30">
-          <div className="flex bg-white w-[50rem] h-[30rem] rounded-[10px] z-10 flex-row">
+          <div className="hidden md:flex flex bg-white w-[50rem] h-[30rem] rounded-[10px] z-10 flex-row ">
             {/* 왼쪽 패널 (로그인으로 전환) */}
             <div className="flex items-center flex-col w-[25rem] h-[30rem] justify-center">
               <h2 className="text-[3rem] font-semibold text-subTextcolor">LMJ<br /><p className="text-mainTextcolor">TrendRank</p></h2>
@@ -38,8 +38,11 @@ export default function Main() {
             </div>
           </div>
           {/* 슬라이딩 패널 */}
-          <div className={`flex items-center absolute top-[-7rem] left-[1rem] h-[40rem] w-[24rem] bg-subBgcolor rounded-[10px] flex-col z-0 ${animationClass}`} id="LoginBack">
-            {isLogin ? <LoginBar /> : <JoinBar onJoinSuccess={handleLoginClick} />}
+          <div className={`flex items-center justify-center 
+              bg-subBgcolor rounded-[10px] flex-col
+              md:absolute md:top-[-7rem] md:left-[1rem] md:h-[40rem] md:w-[24rem] md:z-0 
+              h-screen w-screen ${animationClass}`} id="LoginBack">
+            {isLogin ? <LoginBar onSwitch={handleSignUpClick} /> : <JoinBar onJoinSuccess={handleLoginClick} onSwitch={handleLoginClick} />}
           </div>
         </div>
       </div>

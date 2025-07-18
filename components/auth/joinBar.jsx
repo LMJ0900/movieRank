@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/data'; // Supabase 클라이언트 import
 import { checkNickname } from "@/components/checkNickname"
-export default function JoinBar({ onJoinSuccess }) {
+export default function JoinBar({ onJoinSuccess, onSwitch }) {
   // 회원가입 폼을 위한 State 추가
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,6 +101,12 @@ export default function JoinBar({ onJoinSuccess }) {
           </button>
         </form>
       </div>
+       <button
+        onClick={onSwitch}
+        className="md:hidden mt-4 text-sm text-gray-300 underline"
+      >
+        로그인 하러가기
+      </button>
     </>
   );
 }
