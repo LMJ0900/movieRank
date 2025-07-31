@@ -159,7 +159,7 @@ export default function MovieDetail() {
   if (!movieDetail) return <h1>영화 정보를 불러올 수 없습니다.</h1>;
   
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="p-4 max-w-3xl mx-auto min-h-screen bg-mainBgcolor text-maincolor">
       <h1 className="text-3xl font-bold mb-4">{movieDetail.title}</h1>
 
       {movieDetail.poster ? (
@@ -178,7 +178,7 @@ export default function MovieDetail() {
         <h2 className="text-2xl font-bold mb-4">댓글</h2>
 
         <textarea
-          className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-3 border bg-white text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="댓글을 입력하세요..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
@@ -192,7 +192,7 @@ export default function MovieDetail() {
         />
         <button
           onClick={handleAddComment}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="mt-2 px-4 py-2 bg-subBgcolor  text-white rounded-md hover:bg-blue-600"
         >
           댓글 작성
         </button>
