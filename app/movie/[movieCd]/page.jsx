@@ -14,84 +14,87 @@ export default function MovieDetail() {
   const [movieDetail, setMovieDetail] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [loading, setLoading] = useState(true);
   const [likedComments, setLikedComments] = useState({});
   const [likeCounts, setLikeCounts] = useState({});
-
+  const [loadingMeta, setLoadingMeta] = useState(true);
+  const [loadingComments, setLoadingComments] = useState(true);
   const { user, loading: authLoading } = useLoginCheck();
   const movieList = useRecoilValue(boxOfficeState);
   const posterData = useRecoilValue(moviePosterState);
 
-  useEffect(() => {
-    if (movieCd && movieList.length > 0) {
-      fetchMovieDetails();
-    }
-  }, [movieCd, movieList]);
-
-  const fetchMovieDetails = async () => {
+   useEffect(() => {
+    if (!movieCd || movieList.length === 0) return;
+    setLoadingMeta(true);
     try {
-      setLoading(true);
-      const movie = movieList.find((m) => m.movieCd.toString() === movieCd.toString());
-      if (!movie) throw new Error("영화 정보 없음");
-
+      const movie = movieList.find(m => m.movieCd.toString() === movieCd.toString());
+      if (!movie) throw new Error('영화 정보 없음');
       const posterUrl = posterData?.[movie.movieCd] || null;
+
       setMovieDetail({
         title: movie.movieNm,
-        genre: movie.genreAlt || "장르 정보 없음",
-        director: movie.directors?.[0]?.peopleNm || "감독 정보 없음",
-        plot: "줄거리 정보 없음",
+        genre: movie.genreAlt || '장르 정보 없음',
+        director: movie.directors?.[0]?.peopleNm || '감독 정보 없음',
+        plot: '줄거리 정보 없음',
         audiAcc: movie.audiAcc || 0,
-        poster: posterUrl
+        poster: posterUrl,
       });
-
-      const { data: commentsData } = await supabase
-        .from("comments")
-        .select("id, user_id, content, created_at, profiles(nickname)")
-        .eq("movie_id", movieCd)
-        .order("created_at", { ascending: false });
-
-      setComments(commentsData || []);
-    } catch (error) {
-      console.error("🚨 데이터 로드 오류:", error);
+    } catch (e) {
+      console.error(' 영화 로드 오류:', e);
+      setMovieDetail(null);
     } finally {
-      setLoading(false);
+      setLoadingMeta(false);
     }
-  };
+  }, [movieCd, movieList, posterData]);
 
   useEffect(() => {
-    const fetchLikes = async () => {
-      if (comments.length === 0) return;
-
-      const commentIds = comments.map((c) => c.id);
-      if (commentIds.length === 0) return;
-
+    if (!movieCd) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingComments(true);
       const { data, error } = await supabase
-        .from("likes")
-        .select("comment_id, user_id")
-        .in("comment_id", commentIds);
+        .from('comments')
+        .select('id, user_id, content, created_at, profiles(nickname)')
+        .eq('movie_id', movieCd)
+        .order('created_at', { ascending: false });
+      if (!cancelled) {
+        if (error) {
+          console.error('댓글 로드 오류:', error);
+          setComments([]);
+        } else {
+          setComments(data || []);
+        }
+        setLoadingComments(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [movieCd]);
 
-      if (error) {
-        console.error("❌ 좋아요 로딩 실패:", error);
+  useEffect(() => {
+    (async () => {
+      if (comments.length === 0) {
+        setLikeCounts({});
+        setLikedComments({});
         return;
       }
-
+      const ids = comments.map(c => c.id);
+      const { data, error } = await supabase
+        .from('likes')
+        .select('comment_id, user_id')
+        .in('comment_id', ids);
+      if (error) {
+        console.error('❌ 좋아요 로딩 실패:', error);
+        return;
+      }
       const counts = {};
       const likedByUser = {};
-
-      for (const comment of comments) {
-        const liked = data.filter((l) => l.comment_id === comment.id);
-        counts[comment.id] = liked.length;
-
-        if (user) {
-          likedByUser[comment.id] = liked.some((l) => l.user_id === user.id);
-        }
+      for (const id of ids) {
+        const liked = data.filter(l => l.comment_id === id);
+        counts[id] = liked.length;
+        if (user) likedByUser[id] = liked.some(l => l.user_id === user.id);
       }
-
-      setLikeCounts(counts); // 항상 설정
-      if (user) setLikedComments(likedByUser);
-    };
-
-    fetchLikes();
+      setLikeCounts(counts);        // 누구나 볼 수 있음
+      if (user) setLikedComments(likedByUser); // 유저 준비되면 내 좋아요 반영
+    })();
   }, [comments, user]);
 
   const handleAddComment = async () => {
@@ -155,8 +158,12 @@ export default function MovieDetail() {
     }
   };
 
-  if (loading || authLoading) return <h1>Loading...</h1>;
-  if (!movieDetail) return <h1>영화 정보를 불러올 수 없습니다.</h1>;
+   if (loadingMeta && !movieDetail) {
+    return <h1>Loading movie…</h1>;
+  }
+  if (!movieDetail) {
+    return <h1>영화 정보를 불러올 수 없습니다.</h1>;
+  }
   
   return (
     <div className="p-4 max-w-3xl mx-auto min-h-screen bg-mainBgcolor text-maincolor">
@@ -179,7 +186,8 @@ export default function MovieDetail() {
 
         <textarea
           className="w-full p-3 border bg-white text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="댓글을 입력하세요..."
+          placeholder={authLoading ? '로그인 상태 확인 중…' : (user ? '댓글을 입력하세요…' : '로그인이 필요한 기능입니다.')}
+          disabled={authLoading}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           onClick={(e) => {
@@ -198,7 +206,9 @@ export default function MovieDetail() {
         </button>
 
         <div className="mt-6 space-y-4">
-          {comments.length === 0 ? (
+          {loadingComments ? (
+            <p className="text-gray-500">댓글 불러오는 중…</p>
+          ) : comments.length === 0 ? (
             <p className="text-gray-500">아직 작성된 댓글이 없습니다.</p>
           ) : (
             comments.map((comment) => (
