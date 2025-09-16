@@ -43,7 +43,7 @@ export default function MovieDetail() {
       console.error('fallback 로드 오류:', e);
     }
   })();
-  }, [movieCd, movieList.length]);
+  }, []);
 
    useEffect(() => {
     if (!movieCd || movieList.length === 0) return;
