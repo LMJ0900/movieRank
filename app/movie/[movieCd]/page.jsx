@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { fetchBoxOfficeData, fetchMoviePosters } from "@/actions/movieAction";
 import { supabase } from '@/lib/data';
 import { useLoginCheck } from '@/hooks/Auth';
-import { useRecoilValue } from 'recoil';
+import { getDateType } from "@/components/dateType";
+import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
 
 export default function MovieDetail() {
@@ -21,6 +23,27 @@ export default function MovieDetail() {
   const { user, loading: authLoading } = useLoginCheck();
   const movieList = useRecoilValue(boxOfficeState);
   const posterData = useRecoilValue(moviePosterState);
+  const setMovieList = useSetRecoilState(boxOfficeState);
+  const setPosterData = useSetRecoilState(moviePosterState);
+
+  const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
+  const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
+  const dateType = getDateType();
+  useEffect(() => {
+  if (!movieCd) return;
+  if (movieList.length > 0) return;
+  (async () => {
+    try {
+      const newList = await fetchBoxOfficeData(dateType, apiKey);
+      setMovieList(newList);
+      const postersMap = await fetchMoviePosters(newList, apiKey2);
+
+      setPosterData(prev => ({ ...prev, ...postersMap }));
+    } catch (e) {
+      console.error('fallback 로드 오류:', e);
+    }
+  })();
+  }, [movieCd, movieList.length]);
 
    useEffect(() => {
     if (!movieCd || movieList.length === 0) return;
