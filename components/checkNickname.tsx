@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/data";
 
 // ✅ 닉네임 중복 체크 함수
-export const checkNickname = async (nickname) => {
+export const checkNickname = async (nickname:string) => {
     const { data, error } = await supabase
         .from("profiles")
         .select("id")

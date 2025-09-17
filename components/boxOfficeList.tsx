@@ -1,15 +1,16 @@
 'use client';
 
 import PaginatedList from "@/components/paginatedList";
+import { BoxOfficeListType, MovieItem } from "@/types/type";
 import Link from "next/link";
 
-export default function BoxOfficeList({ movieList, moviePosters }) {
+export default function BoxOfficeList({ movieList, moviePosters } : BoxOfficeListType) {
      console.log("📌 [클라이언트] movieList:", JSON.stringify(movieList, null, 2));
     return (
         <PaginatedList
             title="박스오피스 순위"
             items={movieList}
-            renderItem={(movie) => (
+            renderItem={(movie : MovieItem) => (
                 <Link href={`/movie/${movie.movieCd}`} key={movie.movieCd} className="flex flex-col items-center">
                     <div className="relative">
                         <img className="w-48 h-72 rounded-lg object-cover shadow-lg" 

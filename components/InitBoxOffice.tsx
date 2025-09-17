@@ -3,15 +3,17 @@
 import { useEffect } from "react";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { boxOfficeState, moviePosterState } from "@/recoil/movieState";
+import { BoxOfficeListType, PosterMap } from "@/types/type";
 
-function isMovieListEqual(a, b) {
+function isMovieListEqual(a: ReadonlyArray<{ movieCd: string | number }>,
+  b: ReadonlyArray<{ movieCd: string | number }>):boolean {
   if (!Array.isArray(a) || !Array.isArray(b)) return false;
   if (a.length !== b.length) return false;
 
   return a.every((movie, i) => movie.movieCd === b[i]?.movieCd);
 }
 
-function isPosterMapEqual(a, b) {
+function isPosterMapEqual(a: PosterMap, b: PosterMap) {
   if (!a || !b) return false;
 
   const aKeys = Object.keys(a);
@@ -22,7 +24,7 @@ function isPosterMapEqual(a, b) {
   return aKeys.every((key) => a[key] === b[key]);
 }
 
-export default function InitBoxOffice({ movieList, moviePosters }) {
+export default function InitBoxOffice({ movieList, moviePosters } : BoxOfficeListType) {
   const setBoxOffice = useSetRecoilState(boxOfficeState);
   const setMoviePosters = useSetRecoilState(moviePosterState);
 

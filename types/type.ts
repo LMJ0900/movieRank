@@ -29,3 +29,14 @@ export type MovieInfoType = {
 }
 export type PosterMap = Record<string, string>;
 export type LikeRow = { comment_id: number; user_id: string };
+
+export type MovieItem = MovieInfoType & {
+  rank: string;
+  openDt: string;
+  nationAlt: string;
+};
+
+export type BoxOfficeListType = {
+  movieList: MovieItem[];
+  moviePosters: PosterMap;
+}

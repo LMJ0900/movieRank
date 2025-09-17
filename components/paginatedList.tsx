@@ -2,10 +2,10 @@
 
 import { usePagination } from "@/hooks/pagination";
 import { useEffect, useState } from "react";
-
-export default function PaginatedList({ items, renderItem, itemsPerPage = 5, title }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const { currentPage, totalPages, currentItems, nextPage, prevPage } = usePagination(items.length, itemsPerPage);
+import type { ReactNode } from "react";
+export default function PaginatedList<T>({ items, renderItem, itemsPerPage = 5, title} : {items: T[], renderItem: (item: T, index: number)=> ReactNode, itemsPerPage?: number,title:string}) {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const { currentPage, totalPages, currentItems, nextPage, prevPage } = usePagination<T>(items.length, itemsPerPage);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640); // Tailwind sm 기준
