@@ -7,15 +7,14 @@ import { useLoginCheck } from "@/hooks/Auth";
 import { checkNickname } from "@/components/checkNickname"
 export default function MyPage() {
     const { user, loading } = useLoginCheck();
-    const [nickname, setNickname] = useState("");
-    const [newNickname, setNewNickname] = useState("");
-    const [updateLoading, setUpdateLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [nickname, setNickname] = useState<string>("");
+    const [newNickname, setNewNickname] = useState<string>("");
+    const [updateLoading, setUpdateLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         if (!user) return; 
-    
         (async () => { 
             await fetchNickname();
         })();
@@ -41,6 +40,12 @@ export default function MyPage() {
 
     // ✅ 닉네임 변경
     const handleUpdateNickname = async () => {
+        if (!user?.id) {
+            alert("로그인이 필요합니다.");
+            router.push("/login");
+            return;
+        }
+
         if (!newNickname.trim()) {
             alert("닉네임을 입력하세요.");
             return;

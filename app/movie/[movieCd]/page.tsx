@@ -8,21 +8,21 @@ import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
-
+import type { CommentRowType, LikeRow, MovieDetailType, MovieInfoType, PosterMap } from '@/types/type'
 export default function MovieDetail() {
   const { movieCd } = useParams();
   const router = useRouter();
 
-  const [movieDetail, setMovieDetail] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState('');
-  const [likedComments, setLikedComments] = useState({});
-  const [likeCounts, setLikeCounts] = useState({});
-  const [loadingMeta, setLoadingMeta] = useState(true);
-  const [loadingComments, setLoadingComments] = useState(true);
+  const [movieDetail, setMovieDetail] = useState<MovieDetailType | null>(null);
+  const [comments, setComments] = useState<CommentRowType[]>([]);
+  const [newComment, setNewComment] = useState<string>('');
+  const [likedComments, setLikedComments] = useState<Record<number, boolean>>({});
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
+  const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
+  const [loadingComments, setLoadingComments] = useState<boolean>(true);
   const { user, loading: authLoading } = useLoginCheck();
-  const movieList = useRecoilValue(boxOfficeState);
-  const posterData = useRecoilValue(moviePosterState);
+  const movieList = useRecoilValue(boxOfficeState) as unknown as MovieInfoType[];
+  const posterData = useRecoilValue(moviePosterState) as unknown as Record<string, string>;
   const setMovieList = useSetRecoilState(boxOfficeState);
   const setPosterData = useSetRecoilState(moviePosterState);
 
@@ -34,10 +34,9 @@ export default function MovieDetail() {
   if (movieList.length > 0) return;
   (async () => {
     try {
-      const newList = await fetchBoxOfficeData(dateType, apiKey);
+      const newList = await fetchBoxOfficeData(dateType, apiKey) as unknown as MovieInfoType[];
       setMovieList(newList);
-      const postersMap = await fetchMoviePosters(newList, apiKey2);
-
+      const postersMap = (await fetchMoviePosters(newList, apiKey2)) as unknown as PosterMap;
       setPosterData(prev => ({ ...prev, ...postersMap }));
     } catch (e) {
       console.error('fallback 로드 오류:', e);
@@ -84,7 +83,8 @@ export default function MovieDetail() {
           console.error('댓글 로드 오류:', error);
           setComments([]);
         } else {
-          setComments(data || []);
+          const rows = (data ?? []) as CommentRowType[];
+          setComments(rows);
         }
         setLoadingComments(false);
       }
@@ -108,10 +108,11 @@ export default function MovieDetail() {
         console.error('❌ 좋아요 로딩 실패:', error);
         return;
       }
-      const counts = {};
-      const likedByUser = {};
+      const likes = (data ?? []) as LikeRow[];
+      const counts : Record<number, number> = {};
+      const likedByUser : Record<number, boolean> = {};
       for (const id of ids) {
-        const liked = data.filter(l => l.comment_id === id);
+        const liked = likes.filter(l => l.comment_id === id);
         counts[id] = liked.length;
         if (user) likedByUser[id] = liked.some(l => l.user_id === user.id);
       }
@@ -134,14 +135,14 @@ export default function MovieDetail() {
       .insert([{ movie_id: movieCd, user_id: user.id, content: newComment }])
       .select("id, user_id, content, created_at");
 
-    if (!error) {
+    if (!error && data) {
       const userProfile = await supabase
         .from("profiles")
         .select("nickname")
         .eq("id", user.id)
         .single();
 
-      const newCommentData = {
+      const newCommentData : CommentRowType = {
         ...data[0],
         profiles: { nickname: userProfile.data?.nickname }
       };
@@ -153,7 +154,7 @@ export default function MovieDetail() {
     }
   };
 
-  const handleToggleLike = async (commentId) => {
+  const handleToggleLike = async (commentId : number) => {
     if (!user) {
       alert("로그인이 필요합니다");
       router.push('/login');

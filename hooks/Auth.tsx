@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/data";
-
-export function useLoginCheck() {
-    const [user, setUser] = useState(null);
+import type { User } from "@supabase/supabase-js";
+import type { UseLoginCheckType } from "@/types/type"
+export function useLoginCheck() : UseLoginCheckType {
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
