@@ -1,5 +1,6 @@
+import { MovieItem, PosterMap } from "@/types/type";
 
-export const fetchBoxOfficeData = async (dateType, apiKey) => {
+export const fetchBoxOfficeData = async (dateType:string, apiKey:string) => {
     const boxOfficeUrl = `https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=${apiKey}&targetDt=${dateType}`;
     try {
         const res = await fetch(boxOfficeUrl);
@@ -14,10 +15,10 @@ export const fetchBoxOfficeData = async (dateType, apiKey) => {
     }
 };
 
-export const fetchMoviePosters = async (movieList, apiKey2) => {
+export const fetchMoviePosters = async (movieList:MovieItem[], apiKey2:string) => {
     if (movieList.length === 0) return {}; // 영화 데이터가 없으면 빈 객체 반환
 
-    const postersData = {};
+    const postersData : PosterMap = {};
 
     await Promise.all(
         movieList.map(async (movie) => {

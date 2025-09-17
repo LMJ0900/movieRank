@@ -1,10 +1,10 @@
-import { MovieInfoType, PosterMap } from "@/types/type";
+import { MovieItem, PosterMap } from "@/types/type";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 
 const { persistAtom } = recoilPersist();
 
-export const boxOfficeState = atom<MovieInfoType[]>({
+export const boxOfficeState = atom<MovieItem[]>({
   key: "boxOfficeState",
   default: [],
   effects_UNSTABLE: [persistAtom],

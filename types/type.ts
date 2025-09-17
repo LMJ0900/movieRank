@@ -20,17 +20,15 @@ export type MovieDetailType = {
     poster: string | null;
 }
 type Director = { peopleNm?: string };
-export type MovieInfoType = {
-     movieCd: string | number;
-     movieNm: string;
-     genreAlt?: string;
-     directors?: Director[];
-     audiAcc?: number;
-}
-export type PosterMap = Record<string, string>;
+export type PosterMap = Record<string, string | undefined | null>;
 export type LikeRow = { comment_id: number; user_id: string };
 
-export type MovieItem = MovieInfoType & {
+export type MovieItem = {
+  movieCd: string | number;
+  movieNm: string;
+  genreAlt?: string;
+  directors?: Director[];
+  audiAcc?: number;
   rank: string;
   openDt: string;
   nationAlt: string;

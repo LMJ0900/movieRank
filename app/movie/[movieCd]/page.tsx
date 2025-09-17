@@ -8,7 +8,7 @@ import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
-import type { CommentRowType, LikeRow, MovieDetailType, MovieInfoType, PosterMap } from '@/types/type'
+import type { CommentRowType, LikeRow, MovieDetailType, MovieItem, PosterMap } from '@/types/type'
 export default function MovieDetail() {
   const { movieCd } = useParams();
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function MovieDetail() {
   const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
   const { user, loading: authLoading } = useLoginCheck();
-  const movieList = useRecoilValue(boxOfficeState) as unknown as MovieInfoType[];
+  const movieList = useRecoilValue(boxOfficeState) as unknown as MovieItem[];
   const posterData = useRecoilValue(moviePosterState) as unknown as Record<string, string>;
   const setMovieList = useSetRecoilState(boxOfficeState);
   const setPosterData = useSetRecoilState(moviePosterState);
@@ -29,12 +29,16 @@ export default function MovieDetail() {
   const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
   const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
   const dateType = getDateType();
+  const envReady = !!apiKey && !!apiKey2;
+
+ 
   useEffect(() => {
-  if (!movieCd) return;
-  if (movieList.length > 0) return;
+    if (!envReady) return;
+    if (!movieCd) return;
+    if (movieList.length > 0) return;
   (async () => {
     try {
-      const newList = await fetchBoxOfficeData(dateType, apiKey) as unknown as MovieInfoType[];
+      const newList = await fetchBoxOfficeData(dateType, apiKey) as unknown as MovieItem[];
       setMovieList(newList);
       const postersMap = (await fetchMoviePosters(newList, apiKey2)) as unknown as PosterMap;
       setPosterData(prev => ({ ...prev, ...postersMap }));
@@ -181,7 +185,13 @@ export default function MovieDetail() {
       setLikeCounts((prev) => ({ ...prev, [commentId]: (prev[commentId] || 0) + 1 }));
     }
   };
-
+   if (!apiKey || !apiKey2) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-500">
+        환경변수가 설정되지 않았습니다.
+      </div>
+    );
+  }
    if (loadingMeta && !movieDetail) {
     return <h1>Loading movie…</h1>;
   }

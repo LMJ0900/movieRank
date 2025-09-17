@@ -1,13 +1,13 @@
 import "./globals.css";
 import Script from "next/script";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
-
+import type { ReactNode } from "react";
 export const metadata = {
   title: "movie",
   description: "영화소개 페이지",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children } : {children: ReactNode}) {
   return (
     <html lang="en">
       <head>

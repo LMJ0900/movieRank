@@ -6,8 +6,8 @@ import LoginBar from "@/components/auth/loginBar";
 import JoinBar from "@/components/auth/joinBar";
 
 export default function Main() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [animationClass, setAnimationClass] = useState('');
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [animationClass, setAnimationClass] = useState<string>('');
 
   const handleSignUpClick = () => {
     setIsLogin(false);

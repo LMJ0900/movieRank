@@ -14,7 +14,13 @@ export default async function Home() {
     const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
     const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
     const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
-
+    if (!apiKey || !apiKey2 || !bookApikey) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-500">
+        환경변수가 설정되지 않았습니다.
+      </div>
+    );
+  }
     const dateType = getDateType(); 
     // ✅ 서버에서 API 데이터 가져오기 (박스오피스)
     const movieList = await fetchBoxOfficeData(dateType, apiKey);
