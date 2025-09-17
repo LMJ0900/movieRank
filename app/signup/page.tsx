@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/data";
 import { checkNickname } from "@/components/checkNickname"
 export default function SignupPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [nickname, setNickname] = useState(""); // 닉네임 입력 필드 추가
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [nickname, setNickname] = useState<string>(""); // 닉네임 입력 필드 추가
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    const handleSignup = async (e) => {
+    const handleSignup = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
