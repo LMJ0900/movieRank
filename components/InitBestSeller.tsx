@@ -3,15 +3,16 @@
 import { useEffect } from "react";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { bestSellerState } from "@/recoil/bookState";
+import { BookItem } from "@/types/type";
 
-function isBookListEqual(a, b) {
+function isBookListEqual(a: BookItem[] | unknown, b: BookItem[] | unknown): boolean {
   if (!Array.isArray(a) || !Array.isArray(b)) return false;
   if (a.length !== b.length) return false;
 
   return a.every((book, i) => book.isbn === b[i]?.isbn);
 }
 
-export default function InitBestSeller({ bookList }) {
+export default function InitBestSeller({ bookList } : {bookList : BookItem[]}) {
   const setBestSellers = useSetRecoilState(bestSellerState);
   const currentBestSellers = useRecoilValue(bestSellerState);
 

@@ -34,6 +34,18 @@ export type MovieItem = {
   nationAlt: string;
 };
 
+export type BookItem= {
+  itemId: string;
+  cover: string;
+  isbn: string;
+  title: string;
+  pubDate: string;
+  price: string | number;
+  author?: string;
+  publisher?: string;
+  description?: string;
+}
+
 export type BoxOfficeListType = {
   movieList: MovieItem[];
   moviePosters: PosterMap;

@@ -3,8 +3,8 @@
 import PaginatedList from "@/components/paginatedList";
 import Link from "next/link";
 import Image from "next/image";
-
-export default function BestsellerList({ bestsellerList }) {
+import { BookItem } from "@/types/type";
+export default function BestsellerList({ bestsellerList } : {bestsellerList : BookItem[]}) {
     console.log("📌 [클라이언트] bestsellerList:", bestsellerList); // ✅ 디버깅용
 
     return (
