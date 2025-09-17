@@ -21,3 +21,4 @@ http 상태코드 정리 https://blog.naver.com/lmjcode0930/224010334379
 
 <h2>타입 스크립트 학습정리</h2>
 ReactNode, ReactElement, JSX.Element의 관한 정리 https://blog.naver.com/lmjcode0930/224011601621 <br/>
+제네릭에 대한 정리 https://blog.naver.com/lmjcode0930/224011666218
