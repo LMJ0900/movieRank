@@ -6,7 +6,6 @@ import { supabase } from '@/lib/data';
 import { useLoginCheck } from '@/hooks/Auth';  
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { bestSellerState } from "@/recoil/bookState";
-import { fetchBestsellerData } from '@/actions/bookAction';
 import { BookItem, CommentRowType, LikeRow } from '@/types/type';
 
 export default function BookDetail(){
@@ -22,22 +21,30 @@ export default function BookDetail(){
     const [newComment, setNewComment] = useState<string>("");
     const setMovieList = useSetRecoilState(bestSellerState);
     const { user, loading: authLoading } = useLoginCheck();
-    const bookApikey = process.env.NEXT_PUBLIC_BOOK_API_KEY;
 
 
     
       useEffect(() => {
-        if (!bookApikey) return;
-        if (bookList.length > 0) return;
+      if (bookList?.length) return;
       (async () => {
         try {
-          const newList = await fetchBestsellerData(bookApikey)
-          setMovieList(newList)
+          const res = await fetch('/api/books/bestsellers', { cache: 'no-store' });
+          const text = await res.text();
+          let data = null;
+          try {
+            data = JSON.parse(text); // 서버가 항상 JSON 반환
+          } catch {
+            console.error('API returned non-JSON:', text?.slice(0, 400));
+            return;
+          }
+          setMovieList(data?.item ?? []);
         } catch (e) {
-          console.error('fallback 로드 오류:', e);
+          console.error('bestsellers 로드 실패:', e);
         }
       })();
-      }, []);
+    }, []);
+
+
     useEffect(() => {
     if (!bookList || bookList.length === 0) return;
     setLoadingMeta(true);
