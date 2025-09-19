@@ -20,8 +20,9 @@ promise.all에 관한 정리 https://blog.naver.com/lmjcode0930/224013927865 <br
 
 세션스토리지와 로컬 스토리지 쿠키의 차이점에 관한 내용 https://blog.naver.com/lmjcode0930/224009001676 <br />
 
-http 상태코드 정리 https://blog.naver.com/lmjcode0930/224010334379
+http 상태코드 정리 https://blog.naver.com/lmjcode0930/224010334379 <br />
 
+화살표 함수와 함수 선언문의 this 바인딩 https://blog.naver.com/lmjcode0930/224014200876
 
 <h2>타입 스크립트 학습정리</h2>
 ReactNode, ReactElement, JSX.Element의 관한 정리 https://blog.naver.com/lmjcode0930/224011601621 <br/>
