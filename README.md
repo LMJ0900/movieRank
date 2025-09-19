@@ -10,6 +10,8 @@ https://blog.naver.com/lmjcode0930의 영화순위 사이트 만들기 게시판
 
 도서 상세 페이지 클라이언트 요청 시 cors 발생 문제 해결 정리 https://blog.naver.com/lmjcode0930/224012808713 <br />
 
+promise.all에 관한 정리 https://blog.naver.com/lmjcode0930/224013927865 <br />
+
 타입스크립트 정리 https://www.notion.so/ea970f8f94c94cc18ffa18ebe7ed028f <br />
 참고 https://ts.winterlood.com/479ea272-b297-49e4-9d76-958d97b319cb <br />
 이전에 정리한 타입 스크립트 내용을 복습하고 gpt를 이용해 복사 붙여넣기 하는 형식이 아닌 하나씩 고쳐가며 핸들링 숙달 연습을 진행하였습니다.
