@@ -1,5 +1,14 @@
 export const fetchBestsellerData = async (bookApikey : string) => {
-    const BestsellerUrl = `http://www.aladin.co.kr/ttb/api/ItemList.aspx?ttbkey=${bookApikey}&QueryType=Bestseller&MaxResults=10&start=1&SearchTarget=Book&output=js&Version=20131101`;
+    const BestsellerUrl =
+    `https://www.aladin.co.kr/ttb/api/ItemList.aspx` +
+    `?ttbkey=${bookApikey}` +
+    `&QueryType=Bestseller` +
+    `&MaxResults=10` +
+    `&start=1` +
+    `&SearchTarget=Book` +
+    `&Cover=Big` +   
+    `&output=js` +
+    `&Version=20131101`;
 
     try {
         const res = await fetch(BestsellerUrl);

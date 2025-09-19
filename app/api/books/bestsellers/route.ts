@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       ttbkey: apiKey,
       QueryType: 'Bestseller',
       SearchTarget: 'Book',
-      MaxResults: '50',
+      MaxResults: '10',
       start: '1',
       Cover: 'Big',
       Output: 'JS',
