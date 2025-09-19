@@ -8,7 +8,7 @@ import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
-import type { CommentRowType, LikeRow, MovieDetailType, MovieItem, PosterMap } from '@/types/type'
+import type { CommentRowType, MovieDetailType, MovieItem, PosterMap } from '@/types/type'
 export default function MovieDetail() {
   const { movieCd } = useParams();
   const router = useRouter();
@@ -74,7 +74,6 @@ export default function MovieDetail() {
 
   useEffect(() => {
     if (!movieCd) return;
-    let cancelled = false;
     (async () => {
       setLoadingComments(true);
       const { data, error } = await supabase
@@ -82,7 +81,6 @@ export default function MovieDetail() {
         .select('id, user_id, content, created_at, profiles(nickname)')
         .eq('movie_id', movieCd)
         .order('created_at', { ascending: false });
-      if (!cancelled) {
         if (error) {
           console.error('댓글 로드 오류:', error);
           setComments([]);
@@ -91,39 +89,69 @@ export default function MovieDetail() {
           setComments(rows);
         }
         setLoadingComments(false);
-      }
     })();
-    return () => { cancelled = true; };
   }, [movieCd]);
 
   useEffect(() => {
-    (async () => {
-      if (comments.length === 0) {
-        setLikeCounts({});
-        setLikedComments({});
-        return;
+  (async () => {
+    if (comments.length === 0) {
+      setLikeCounts({});
+      setLikedComments({});
+      return;
+    }
+    const ids = comments.map(c => c.id);
+
+    // 1) 전체 카운트: comment_id만 가져와서 클라이언트에서 집계 (전송량↓)
+    const allLikesQuery = supabase
+      .from('likes')
+      .select('comment_id') // 최소 컬럼
+      .in('comment_id', ids);
+
+    // 2) 내 좋아요 여부: 현재 유저가 누른 것만 조회 (전송량↓)
+    const myLikesQuery = user
+      ? supabase
+          .from('likes')
+          .select('comment_id')
+          .eq('user_id', user.id)
+          .in('comment_id', ids)
+      : null;
+
+    const [allLikesRes, myLikesRes] = await Promise.all([
+      allLikesQuery,
+      myLikesQuery
+    ]);
+
+    // 에러 처리
+    if (allLikesRes.error) {
+      console.error('❌ 전체 좋아요 카운트 로딩 실패:', allLikesRes.error);
+      return;
+    }
+    if (myLikesRes && myLikesRes.error) {
+      console.error('❌ 내 좋아요 여부 로딩 실패:', myLikesRes.error);
+    }
+
+    // 1) 카운트 집계
+    const counts: Record<number, number> = {};
+    for (const id of ids) counts[id] = 0;
+    for (const row of (allLikesRes.data ?? []) as { comment_id: number }[]) {
+      counts[row.comment_id] = (counts[row.comment_id] ?? 0) + 1;
+    }
+    setLikeCounts(counts);
+
+    // 2) 내 좋아요 여부
+    if (user && myLikesRes?.data) {
+      const likedByUser: Record<number, boolean> = {};
+      for (const id of ids) likedByUser[id] = false;
+      for (const row of myLikesRes.data as { comment_id: number }[]) {
+        likedByUser[row.comment_id] = true;
       }
-      const ids = comments.map(c => c.id);
-      const { data, error } = await supabase
-        .from('likes')
-        .select('comment_id, user_id')
-        .in('comment_id', ids);
-      if (error) {
-        console.error('❌ 좋아요 로딩 실패:', error);
-        return;
-      }
-      const likes = (data ?? []) as LikeRow[];
-      const counts : Record<number, number> = {};
-      const likedByUser : Record<number, boolean> = {};
-      for (const id of ids) {
-        const liked = likes.filter(l => l.comment_id === id);
-        counts[id] = liked.length;
-        if (user) likedByUser[id] = liked.some(l => l.user_id === user.id);
-      }
-      setLikeCounts(counts);        // 누구나 볼 수 있음
-      if (user) setLikedComments(likedByUser); // 유저 준비되면 내 좋아요 반영
-    })();
-  }, [comments, user]);
+      setLikedComments(likedByUser);
+    } else {
+      // 유저 없으면 초기화
+      setLikedComments({});
+    }
+  })();
+}, [comments, user]);
 
   const handleAddComment = async () => {
     if (!user) {
