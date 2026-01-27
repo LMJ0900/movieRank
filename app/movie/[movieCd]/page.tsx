@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchBoxOfficeData, fetchMoviePosters } from "@/actions/movieAction";
-import { supabase } from '@/lib/data';
 import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
@@ -12,12 +11,8 @@ import type { MovieDetailType, MovieItem, PosterMap } from '@/types/type'
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CommentQuery } from '@/api/Comment.query';
 import { CommentMutation } from '@/api/Comment.mutation';
-
-type AddCommentReq = {
-  movieCd: string;
-  userId: string;
-  content: string;
-};
+import { AddCommentReq } from '@/api/comment/request/AddCommentReq';
+import { ToggleLikeReq } from '@/api/comment/request/ToggleLikeReq';
 
 export default function MovieDetail() {
   const { movieCd } = useParams();
@@ -25,8 +20,6 @@ export default function MovieDetail() {
 
   const [movieDetail, setMovieDetail] = useState<MovieDetailType | null>(null);
   const [newComment, setNewComment] = useState<string>('');
-  const [likedComments, setLikedComments] = useState<Record<number, boolean>>({});
-  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
   const { user, loading: authLoading } = useLoginCheck();
   const movieList = useRecoilValue(boxOfficeState) as unknown as MovieItem[];
@@ -38,11 +31,27 @@ export default function MovieDetail() {
   const dateType = getDateType();
   const envReady = !!apiKey && !!apiKey2;
 
-   const { data:AllCommentData = [], isPending:allCommentPending, isError:commentLoadError, error, refetch: refetchComments} = useQuery({
+  const { data:AllCommentData = [], isPending:allCommentPending, isError:commentLoadError, error, refetch: refetchComments} = useQuery({
     queryKey: ['comments', movieCd],
     enabled: !!movieCd,
     queryFn: () => CommentQuery.fetchComments(movieCd as string),
-    })
+  })
+
+  const commentIds = AllCommentData.map((c) => c.id);
+
+  const { data: allLikesComments = [], refetch: refetchAllLikes, isFetching: isFetchingMyLikes, isPending: isPendingMyLikes, } = useQuery({
+  queryKey: ['likes', movieCd, commentIds],
+  enabled: !!movieCd && commentIds.length > 0,
+  queryFn: () => CommentQuery.getLikesByIds(commentIds),
+  });
+
+  const likeReady = !isPendingMyLikes && !isFetchingMyLikes;
+
+  const { data: myLikesComments = [], refetch: refetchMyLikes } = useQuery({
+  queryKey: ['myLikes', movieCd, user?.id, commentIds],
+  enabled: !!movieCd && !!user?.id && commentIds.length > 0,
+  queryFn: () => CommentQuery.getMyLikesByCommentIds(user!.id, commentIds),
+  });
 
   const { mutate: AddCommentMutate } = useMutation({
     mutationFn: (req: AddCommentReq) => CommentMutation.addComment(req),
@@ -52,6 +61,17 @@ export default function MovieDetail() {
     },
     onError: (e) => {
     console.error('댓글 추가 오류:', e);
+    },
+  })
+
+  const { mutate: toggleLikeMutate, isPending: isLikePending } = useMutation({
+    mutationFn: (req: ToggleLikeReq) => CommentMutation.toggleLike(req),
+    onSuccess: async () => {
+      await refetchAllLikes();
+      await refetchMyLikes();
+    },
+    onError: (e) => {
+    console.error('댓글 좋아요 오류:', e);
     },
   })
 
@@ -96,70 +116,25 @@ export default function MovieDetail() {
     }
   }, [movieCd, movieList, posterData]);
 
- 
-
   if (commentLoadError) console.error('댓글 로드 오류:', error);
 
-  useEffect(() => {
-  (async () => {
-    if (AllCommentData.length === 0) {
-      setLikeCounts({});
-      setLikedComments({});
-      return;
-    }
-    const ids = AllCommentData.map(c => c.id);
-
-    // 1) 전체 카운트: comment_id만 가져와서 클라이언트에서 집계 (전송량↓)
-    const allLikesQuery = supabase
-      .from('likes')
-      .select('comment_id') // 최소 컬럼
-      .in('comment_id', ids);
-
-    // 2) 내 좋아요 여부: 현재 유저가 누른 것만 조회 (전송량↓)
-    const myLikesQuery = user
-      ? supabase
-          .from('likes')
-          .select('comment_id')
-          .eq('user_id', user.id)
-          .in('comment_id', ids)
-      : null;
-
-    const [allLikesRes, myLikesRes] = await Promise.all([
-      allLikesQuery,
-      myLikesQuery
-    ]);
-
-    // 에러 처리
-    if (allLikesRes.error) {
-      console.error('❌ 전체 좋아요 카운트 로딩 실패:', allLikesRes.error);
-      return;
-    }
-    if (myLikesRes && myLikesRes.error) {
-      console.error('❌ 내 좋아요 여부 로딩 실패:', myLikesRes.error);
-    }
-
-    // 1) 카운트 집계
+  const likeCounts = useMemo(() => {
     const counts: Record<number, number> = {};
-    for (const id of ids) counts[id] = 0;
-    for (const row of (allLikesRes.data ?? []) as { comment_id: number }[]) {
+    for (const id of commentIds) counts[id] = 0;
+    for (const row of allLikesComments as { comment_id: number }[]) {
       counts[row.comment_id] = (counts[row.comment_id] ?? 0) + 1;
     }
-    setLikeCounts(counts);
+    return counts;
+  }, [allLikesComments, commentIds]);
 
-    // 2) 내 좋아요 여부
-    if (user && myLikesRes?.data) {
-      const likedByUser: Record<number, boolean> = {};
-      for (const id of ids) likedByUser[id] = false;
-      for (const row of myLikesRes.data as { comment_id: number }[]) {
-        likedByUser[row.comment_id] = true;
-      }
-      setLikedComments(likedByUser);
-    } else {
-      // 유저 없으면 초기화
-      setLikedComments({});
+  const likedComments = useMemo((): Record<number, boolean> => {
+    const liked: Record<number, boolean> = {};
+    for (const id of commentIds) liked[id] = false;
+    for (const row of myLikesComments as { comment_id: number }[]) {
+      liked[row.comment_id] = true;
     }
-  })();
-}, [AllCommentData, user]);
+    return liked;
+  }, [commentIds, myLikesComments]);
 
   const handleAddComment = async () => {
     if (!user) {
@@ -179,26 +154,12 @@ export default function MovieDetail() {
       router.push('/login');
       return;
     }
+    
+    if (!likeReady) return;
+    if (isLikePending) return;
 
     const hasLiked = likedComments[commentId];
-
-    if (hasLiked) {
-      await supabase
-        .from("likes")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("comment_id", commentId);
-
-      setLikedComments((prev) => ({ ...prev, [commentId]: false }));
-      setLikeCounts((prev) => ({ ...prev, [commentId]: (prev[commentId] || 1) - 1 }));
-    } else {
-      await supabase
-        .from("likes")
-        .insert([{ user_id: user.id, comment_id: commentId }]);
-
-      setLikedComments((prev) => ({ ...prev, [commentId]: true }));
-      setLikeCounts((prev) => ({ ...prev, [commentId]: (prev[commentId] || 0) + 1 }));
-    }
+    toggleLikeMutate({ userId: user.id, commentId, hasLiked });
   };
    if (!apiKey || !apiKey2) {
     return (
