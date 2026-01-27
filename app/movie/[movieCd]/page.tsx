@@ -8,28 +8,52 @@ import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
-import type { CommentRowType, MovieDetailType, MovieItem, PosterMap } from '@/types/type'
+import type { MovieDetailType, MovieItem, PosterMap } from '@/types/type'
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { CommentQuery } from '@/api/Comment.query';
+import { CommentMutation } from '@/api/Comment.mutation';
+
+type AddCommentReq = {
+  movieCd: string;
+  userId: string;
+  content: string;
+};
+
 export default function MovieDetail() {
   const { movieCd } = useParams();
   const router = useRouter();
 
   const [movieDetail, setMovieDetail] = useState<MovieDetailType | null>(null);
-  const [comments, setComments] = useState<CommentRowType[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [likedComments, setLikedComments] = useState<Record<number, boolean>>({});
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
-  const [loadingComments, setLoadingComments] = useState<boolean>(true);
   const { user, loading: authLoading } = useLoginCheck();
   const movieList = useRecoilValue(boxOfficeState) as unknown as MovieItem[];
   const posterData = useRecoilValue(moviePosterState) as unknown as Record<string, string>;
   const setMovieList = useSetRecoilState(boxOfficeState);
   const setPosterData = useSetRecoilState(moviePosterState);
-
   const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
   const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
   const dateType = getDateType();
   const envReady = !!apiKey && !!apiKey2;
+
+   const { data:AllCommentData = [], isPending:allCommentPending, isError:commentLoadError, error, refetch: refetchComments} = useQuery({
+    queryKey: ['comments', movieCd],
+    enabled: !!movieCd,
+    queryFn: () => CommentQuery.fetchComments(movieCd as string),
+    })
+
+  const { mutate: AddCommentMutate } = useMutation({
+    mutationFn: (req: AddCommentReq) => CommentMutation.addComment(req),
+    onSuccess:async () => {
+        await refetchComments();
+        setNewComment('');
+    },
+    onError: (e) => {
+    console.error('댓글 추가 오류:', e);
+    },
+  })
 
  
   useEffect(() => {
@@ -72,34 +96,18 @@ export default function MovieDetail() {
     }
   }, [movieCd, movieList, posterData]);
 
-  useEffect(() => {
-    if (!movieCd) return;
-    (async () => {
-      setLoadingComments(true);
-      const { data, error } = await supabase
-        .from('comments')
-        .select('id, user_id, content, created_at, profiles(nickname)')
-        .eq('movie_id', movieCd)
-        .order('created_at', { ascending: false });
-        if (error) {
-          console.error('댓글 로드 오류:', error);
-          setComments([]);
-        } else {
-          const rows = (data ?? []) as CommentRowType[];
-          setComments(rows);
-        }
-        setLoadingComments(false);
-    })();
-  }, [movieCd]);
+ 
+
+  if (commentLoadError) console.error('댓글 로드 오류:', error);
 
   useEffect(() => {
   (async () => {
-    if (comments.length === 0) {
+    if (AllCommentData.length === 0) {
       setLikeCounts({});
       setLikedComments({});
       return;
     }
-    const ids = comments.map(c => c.id);
+    const ids = AllCommentData.map(c => c.id);
 
     // 1) 전체 카운트: comment_id만 가져와서 클라이언트에서 집계 (전송량↓)
     const allLikesQuery = supabase
@@ -151,7 +159,7 @@ export default function MovieDetail() {
       setLikedComments({});
     }
   })();
-}, [comments, user]);
+}, [AllCommentData, user]);
 
   const handleAddComment = async () => {
     if (!user) {
@@ -159,31 +167,10 @@ export default function MovieDetail() {
       router.push('/login');
       return;
     }
+    if (newComment.trim() === '') return;
+    const req = {movieCd: String(movieCd), userId: user.id, content: newComment}
 
-    if (newComment.trim() === "") return;
-
-    const { data, error } = await supabase
-      .from("comments")
-      .insert([{ movie_id: movieCd, user_id: user.id, content: newComment }])
-      .select("id, user_id, content, created_at");
-
-    if (!error && data) {
-      const userProfile = await supabase
-        .from("profiles")
-        .select("nickname")
-        .eq("id", user.id)
-        .single();
-
-      const newCommentData : CommentRowType = {
-        ...data[0],
-        profiles: { nickname: userProfile.data?.nickname }
-      };
-
-      setComments([newCommentData, ...comments]);
-      setNewComment("");
-    } else {
-      console.error("댓글 추가 오류:", error);
-    }
+    AddCommentMutate(req);
   };
 
   const handleToggleLike = async (commentId : number) => {
@@ -268,12 +255,12 @@ export default function MovieDetail() {
         </button>
 
         <div className="mt-6 space-y-4">
-          {loadingComments ? (
+          {allCommentPending ? (
             <p className="text-gray-500">댓글 불러오는 중…</p>
-          ) : comments.length === 0 ? (
+          ) : AllCommentData.length === 0 ? (
             <p className="text-gray-500">아직 작성된 댓글이 없습니다.</p>
           ) : (
-            comments.map((comment) => (
+            AllCommentData.map((comment) => (
               <div
                 key={comment.id}
                 className="relative bg-white border border-gray-200 rounded-xl shadow-sm p-4"
