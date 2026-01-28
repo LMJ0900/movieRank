@@ -175,7 +175,7 @@ export default function BookDetail(){
 
     // ✅ 로딩 중 화면
     if (loadingMeta && !bookDetail) {
-    return <h1>Loading movie…</h1>;
+    return <h1>Loading book…</h1>;
   }
     if (!bookDetail) return <h1>도서 정보를 불러올 수 없습니다.</h1>;
 

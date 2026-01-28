@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchBoxOfficeData } from "@/actions/movieAction";
-import { fetchMoviePosters } from "@/actions/movieAction";
+import { MovieQuery } from "@/api/movie/Movie.query";
 import { MovieItem, PosterMap } from "@/types/type";
 // ✅ 커스텀 훅: 박스오피스 데이터 가져오기
 export const useBoxOfficeData = (dateType:string, apiKey:string) => {
@@ -9,7 +8,7 @@ export const useBoxOfficeData = (dateType:string, apiKey:string) => {
 
     useEffect(() => {
         const getBoxOfficeData = async () => {
-            const data = await fetchBoxOfficeData(dateType, apiKey);
+            const data = await MovieQuery.getBoxOfficeList(dateType);
             setMovieList(data as MovieItem[]);
             setLoading(false);
         };
@@ -25,7 +24,7 @@ export const useMoviePosters = (movieList:MovieItem[], apiKey2:string) => {
 
     useEffect(() => {
         const getMoviePosters = async () => {
-            const postersData = await fetchMoviePosters(movieList, apiKey2);
+            const postersData = await MovieQuery.getPostersForBoxOfficeList(movieList);
             setMoviePosters((prev) => ({ ...prev, ...(postersData as PosterMap) }));
         };
 

@@ -2,17 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchBoxOfficeData, fetchMoviePosters } from "@/actions/movieAction";
 import { useLoginCheck } from '@/hooks/Auth';
 import { getDateType } from "@/components/dateType";
 import { useRecoilValue,useSetRecoilState } from 'recoil';
 import { boxOfficeState, moviePosterState } from '@/recoil/movieState';
 import type { MovieDetailType, MovieItem, PosterMap } from '@/types/type'
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { CommentQuery } from '@/api/Comment.query';
-import { CommentMutation } from '@/api/Comment.mutation';
+import { CommentQuery } from '@/api/comment/Comment.query';
+import { CommentMutation } from '@/api/comment/Comment.mutation';
 import { AddCommentReq } from '@/api/comment/request/AddCommentReq';
 import { ToggleLikeReq } from '@/api/comment/request/ToggleLikeReq';
+import { MovieQuery } from '@/api/movie/Movie.query';
 
 export default function MovieDetail() {
   const { movieCd } = useParams();
@@ -26,10 +26,7 @@ export default function MovieDetail() {
   const posterData = useRecoilValue(moviePosterState) as unknown as Record<string, string>;
   const setMovieList = useSetRecoilState(boxOfficeState);
   const setPosterData = useSetRecoilState(moviePosterState);
-  const apiKey = process.env.NEXT_PUBLIC_BOXOFFICE_API_KEY;
-  const apiKey2 = process.env.NEXT_PUBLIC_MOVIEPOSTER_API_KEY;
   const dateType = getDateType();
-  const envReady = !!apiKey && !!apiKey2;
 
   const { data:AllCommentData = [], isPending:allCommentPending, isError:commentLoadError, error, refetch: refetchComments} = useQuery({
     queryKey: ['comments', movieCd],
@@ -77,14 +74,13 @@ export default function MovieDetail() {
 
  
   useEffect(() => {
-    if (!envReady) return;
     if (!movieCd) return;
     if (movieList.length > 0) return;
   (async () => {
     try {
-      const newList = await fetchBoxOfficeData(dateType, apiKey) as unknown as MovieItem[];
+      const newList = (await MovieQuery.getBoxOfficeList(dateType)) as unknown as MovieItem[];
       setMovieList(newList);
-      const postersMap = (await fetchMoviePosters(newList, apiKey2)) as unknown as PosterMap;
+      const postersMap = (await MovieQuery.getPostersForBoxOfficeList(newList)) as unknown as PosterMap;
       setPosterData(prev => ({ ...prev, ...postersMap }));
     } catch (e) {
       console.error('fallback 로드 오류:', e);
@@ -161,13 +157,6 @@ export default function MovieDetail() {
     const hasLiked = likedComments[commentId];
     toggleLikeMutate({ userId: user.id, commentId, hasLiked });
   };
-   if (!apiKey || !apiKey2) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
-        환경변수가 설정되지 않았습니다.
-      </div>
-    );
-  }
    if (loadingMeta && !movieDetail) {
     return <h1>Loading movie…</h1>;
   }
