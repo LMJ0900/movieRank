@@ -1,4 +1,18 @@
+## 의존성 설치
+```bash
+$ npm install
+```
 
+## Commit Convention
+```bash
+Prefix
+
+[Add] : 파일 추가
+[chore] : 패키지 매니저 변경 및 의존성 모듈 추가
+[Feature] : 기능 추가
+[Fix] 기능 수정
+[Docs] 문서 관련 모든 수정
+```
 
 #영화 순위 사이트 만들기 <br/>
 https://blog.naver.com/lmjcode0930의 영화순위 사이트 만들기 게시판에 코드 리뷰가 작성되어 있습니다.
